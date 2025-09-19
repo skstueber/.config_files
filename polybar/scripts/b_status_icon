@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Get all battery percentages into an array
+readarray -t battery_levels < <(acpi -b | grep -P -o '[0-9]+%' | tr -d '%')
+
+# Fallback if nothing was found
+if [[ ${#battery_levels[@]} -eq 0 ]]; then
+  echo "No battery percentage found"
+  exit 1
+fi
+
+# Use the last battery level if multiple batteries exist
+battery_level="${battery_levels[-1]}"
+
+if [[ $battery_level -ge 85 ]]; then
+  echo -e "%{F#00ff00} "$battery_level"%"
+elif [[ $battery_level -ge 65 ]]; then
+  echo -e "%{F#ffffff} "$battery_level"%"
+elif [[ $battery_level -lt 65 ]] && [[ $battery_level -ge 40 ]]; then
+  echo -e "%{F#ffda03} "$battery_level"%"
+elif [[ $battery_level -lt 40 ]] && [[ $battery_level -gt 25 ]]; then
+  echo -e "%{F#feaa00} "$battery_level"%"
+elif [[ $battery_level -le 25 ]]; then
+  echo -e "%{F#ff0000} "$battery_level"%"
+
+fi
